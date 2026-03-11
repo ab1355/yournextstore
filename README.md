@@ -10,7 +10,7 @@
   <strong>Open-source AI-native Next.js e-commerce template.</strong>
 </p>
 <p align="center">
-Powered by Stripe. Built for AI coding tools.
+Multi-provider payments: Polar.sh · Creem.io · Flexprice · Stripe (legacy)
 </p>
 
 <div align="center">
@@ -32,7 +32,7 @@ Powered by Stripe. Built for AI coding tools.
 | | |
 |:---|:---|
 | **AI-Friendly Codebase** | Ships with [AGENTS.md](AGENTS.md) — idiomatic patterns, Commerce Kit SDK with typed methods. Claude Code, Cursor, and Codex work out of the box |
-| **Stripe-Native** | Direct Stripe API integration — checkout, billing, subscriptions |
+| **Multi-Provider Payments** | Polar.sh, Creem.io, and Flexprice out of the box — plus Stripe via the legacy YNS proxy |
 | **Next.js 16** | App Router, React Server Components, React Compiler |
 | **Open Source** | Self-host anywhere, deploy to Vercel in one click |
 
@@ -46,6 +46,72 @@ bun dev
 ```
 
 Open [localhost:3000](http://localhost:3000) — your store is running.
+
+## Payment Providers
+
+Your Next Store supports four checkout backends. Set `PAYMENT_PROVIDER` in your `.env.local` to choose one. When unset the legacy YNS / Stripe proxy is used.
+
+### Polar.sh
+
+1. Create an account at [polar.sh](https://polar.sh) and set up your products.
+2. Copy your **Access Token** from *Settings → Developers → Access Tokens*.
+3. Copy your **Webhook Secret** from *Settings → Webhooks → Endpoint secret*.
+4. Map your commerce-kit variant IDs to Polar price IDs in `PRODUCT_ID_MAP`.
+
+```env
+PAYMENT_PROVIDER=polar
+NEXT_PUBLIC_APP_URL=https://your-store.example.com
+POLAR_ACCESS_TOKEN=polar_oat_xxxx
+POLAR_WEBHOOK_SECRET=whs_xxxx
+POLAR_SERVER=production          # or "sandbox" for testing
+PRODUCT_ID_MAP={"variant_id_1":{"polar":"polar_price_id_1"}}
+```
+
+Checkout route: `/api/checkout/polar`  
+Webhook route: `/api/webhooks/polar`
+
+### Creem.io
+
+1. Create an account at [creem.io](https://creem.io) and set up your products.
+2. Copy your **API Key** from the Creem dashboard.
+3. Copy your **Webhook Secret** from *Dashboard → Webhooks*.
+4. Map your commerce-kit variant IDs to Creem product IDs in `PRODUCT_ID_MAP`.
+
+```env
+PAYMENT_PROVIDER=creem
+NEXT_PUBLIC_APP_URL=https://your-store.example.com
+CREEM_API_KEY=creem_xxxx
+CREEM_WEBHOOK_SECRET=whsec_xxxx
+PRODUCT_ID_MAP={"variant_id_1":{"creem":"creem_product_id_1"}}
+```
+
+Checkout route: `/api/checkout/creem`  
+Webhook route: `/api/webhooks/creem`
+
+### Flexprice
+
+[Flexprice](https://flexprice.io) is an open-source usage-based billing platform that uses Stripe under the hood.
+
+1. Create an account at [flexprice.io](https://flexprice.io) and note your API key.
+2. Configure a Stripe webhook at [dashboard.stripe.com/webhooks](https://dashboard.stripe.com/webhooks) pointing to `{APP_URL}/api/webhooks/flexprice`.
+
+```env
+PAYMENT_PROVIDER=flexprice
+NEXT_PUBLIC_APP_URL=https://your-store.example.com
+FLEXPRICE_API_KEY=fp_xxxx
+FLEXPRICE_API_URL=https://api.flexprice.io/v1
+FLEXPRICE_WEBHOOK_SECRET=whsec_xxxx   # Stripe webhook signing secret
+```
+
+Webhook route: `/api/webhooks/flexprice`
+
+### Legacy YNS / Stripe
+
+Leave `PAYMENT_PROVIDER` unset to keep the original YNS backend / Stripe proxy.
+
+```env
+YNS_API_KEY=your_api_token_here
+```
 
 ## Why AI Tools Work Better Here
 
@@ -61,6 +127,7 @@ Open [localhost:3000](http://localhost:3000) — your store is running.
 - **Next.js 16** — App Router, React Server Components, React Compiler
 - **Bun** — Fast JavaScript runtime and package manager
 - **Commerce Kit SDK** — Headless commerce API integration
+- **Polar.sh / Creem.io / Flexprice** — Payment provider integrations
 - **Tailwind CSS v4** — Utility-first styling
 - **Shadcn UI** — 50+ accessible components built on Radix UI
 - **TypeScript** — Strict type-safe development
@@ -70,13 +137,11 @@ Open [localhost:3000](http://localhost:3000) — your store is running.
 
 - [Node.js 24+](https://nodejs.org/)
 - [Bun 1.0+](https://bun.sh/)
-- YNS API key from [https://yns.store/manage/settings/api](https://yns.store/manage/settings/api)
+- YNS API key from [https://yns.store/manage/settings/api](https://yns.store/manage/settings/api) *(only required for the legacy Stripe mode)*
 
 ### Environment Variables
 
-Copy `.env.example` to `.env.local` and set:
-
-- `YNS_API_KEY` — Your API token from the admin panel
+Copy `.env.example` to `.env.local` and configure for your chosen payment provider. See the [Payment Providers](#payment-providers) section above.
 
 ## Contributing
 
