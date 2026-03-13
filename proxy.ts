@@ -1,8 +1,15 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getSubdomainPublicUrl } from "./lib/commerce";
+import { isNewPaymentProvider } from "./lib/payment-providers";
 
 export async function proxy(request: NextRequest) {
+	// When a new payment provider (Polar, Creem, or Flexprice) is configured,
+	// skip the YNS/Stripe proxy so that the Next.js checkout pages handle the flow.
+	if (isNewPaymentProvider()) {
+		return NextResponse.next();
+	}
+
 	const { subdomain, publicUrl } = await getSubdomainPublicUrl();
 	const destinationUrl = new URL(publicUrl);
 
