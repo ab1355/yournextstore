@@ -5,14 +5,15 @@
  * - "polar"      – Polar.sh      (@polar-sh/sdk, @polar-sh/nextjs)
  * - "creem"      – Creem.io      (@creem_io/nextjs)
  * - "flexprice"  – Flexprice     (@flexprice/sdk)
+ * - "x402"       – x402 protocol (@x402-next) — USDC payments on Base via HTTP 402
  *
  * Set the PAYMENT_PROVIDER environment variable to choose a provider.
  * When PAYMENT_PROVIDER is not set the legacy YNS/Stripe proxy is used.
  */
 
-export type PaymentProvider = "polar" | "creem" | "flexprice";
+export type PaymentProvider = "polar" | "creem" | "flexprice" | "x402";
 
-const SUPPORTED_PROVIDERS: PaymentProvider[] = ["polar", "creem", "flexprice"];
+const SUPPORTED_PROVIDERS: PaymentProvider[] = ["polar", "creem", "flexprice", "x402"];
 
 /**
  * Returns the configured payment provider, or null when the YNS/Stripe

@@ -9,16 +9,16 @@
  *   polar      → /api/checkout/polar?productPriceId=...
  *   creem      → /api/checkout/creem?productId=...
  *   flexprice  → /api/checkout/flexprice  (creates invoice + payment link)
+ *   x402       → /api/checkout/x402       (HTTP 402 / USDC payment, no product mapping needed)
  *
  * Product ID mapping:
- *   Each payment provider requires its own product/price IDs.
+ *   Polar and Creem require their own product/price IDs.
  *   Configure a JSON mapping in the PRODUCT_ID_MAP environment variable:
  *
  *   PRODUCT_ID_MAP='{"<yns_variant_id>":{"polar":"<polar_price_id>","creem":"<creem_product_id>"}}'
  *
- *   When the mapping is not set, the checkout route is called without product
- *   params (useful during initial setup or for providers that support
- *   custom/dynamic amounts).
+ *   Flexprice and x402 compute the total dynamically from the cart, so no
+ *   product mapping is needed for those providers.
  *
  * If PAYMENT_PROVIDER is not set the YNS/Stripe proxy handles the request
  * and this file is never rendered (proxy.ts returns NextResponse.rewrite).
@@ -89,6 +89,12 @@ export default async function CheckoutPage() {
 	if (provider === "flexprice") {
 		// Flexprice checkout is handled entirely server-side in its API route.
 		redirect("/api/checkout/flexprice");
+	}
+
+	if (provider === "x402") {
+		// x402 checkout: the API route computes the cart total and requires a
+		// USDC payment via the HTTP 402 protocol before redirecting to success.
+		redirect("/api/checkout/x402");
 	}
 
 	redirect("/");
